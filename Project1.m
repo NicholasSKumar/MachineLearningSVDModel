@@ -15,7 +15,6 @@ zucchinis = imageDatastore(zucchiniLocation);
 zucchinis = augmentedImageDatastore([250 250], zucchinis, "ColorPreprocessing","rgb2gray");
 data = readall(zucchinis);
 
-%zucchiniA = [];
 A = [];
 for j=1:N
     r = data(j,1);
@@ -155,13 +154,36 @@ plot3(wZupts(1),wZupts(2),wZupts(3),'.y','MarkerSize',30)
 
 legend('CUCUMBER','APPLE','ZUCCHINI', 'APPLE NEW', 'CUCUMBER NEW', 'ZUCCHINI NEW')
 
-%%SVM Part B
+%%Part B SVM 
+
 allPoints = [ap, cucu, zu];
-theClass = ones(288,1); %1 are apples
-theClass(97:288) = 2;   %2 are cucumbers
-theClass(193:288) = 3;  %3 are zucchinis
+%1 = apples, 2 = cucumbers, 3 = zucchinis
+label = [ones(96,1); 2*ones(96,1); 3*ones(96,1)];
 
 %train svm classifier
+features = 1:3;
+xtrain = [U(1:96,features); U(97:192,features); U(193:288,features)];
 
-SVMModel = fitcecoc(allPoints,theClass');
-[lable,score] = predict(SVMModel,Applepts);
+SVMModel = fitcecoc(xtrain,label);
+test_labels(1) = predict(SVMModel,Applepts);
+test_labels(2) = predict(SVMModel,Cucupts);
+test_labels(3) = predict(SVMModel,wZupts);
+
+fprintf("For SVM classification 1 = apples, 2 = cucumbers, 3 = zucchinis\n");
+
+fprintf("New apple image was clasified as %d by SVM\n",test_labels(1));
+fprintf("New cucumber image was clasified as %d by SVM\n",test_labels(2));
+fprintf("New zucchini image was clasified as %d by SVM\n\n",test_labels(3));
+
+%%Part C Decision Trees
+
+TreeModel = fitctree(xtrain,label,crossval="on");
+view(TreeModel.Trained{1}, Mode="graph");
+
+%%Part D
+
+neighborAp = knnsearch(xtrain,Applepts);
+neighborCu = knnsearch(xtrain,Cucupts);
+neighborZu = knnsearch(xtrain,wZupts);
+
+fprintf(label{neighborAp});
