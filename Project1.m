@@ -154,3 +154,14 @@ plot3(Cucupts(1),Cucupts(2),Cucupts(3),'k.','MarkerSize',30)
 plot3(wZupts(1),wZupts(2),wZupts(3),'.y','MarkerSize',30)
 
 legend('CUCUMBER','APPLE','ZUCCHINI', 'APPLE NEW', 'CUCUMBER NEW', 'ZUCCHINI NEW')
+
+%%SVM Part B
+allPoints = [ap, cucu, zu];
+theClass = ones(288,1); %1 are apples
+theClass(97:288) = 2;   %2 are cucumbers
+theClass(193:288) = 3;  %3 are zucchinis
+
+%train svm classifier
+
+SVMModel = fitcecoc(allPoints,theClass');
+[lable,score] = predict(SVMModel,Applepts);
